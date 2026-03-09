@@ -11,6 +11,15 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      // Proxy API calls to Colosseum backend when VITE_API_BASE_URL is empty
+      "/health": "http://localhost:8787",
+      "/market-status": "http://localhost:8787",
+      "/tournaments": "http://localhost:8787",
+      "/gateway": "http://localhost:8787",
+      "/agent-api": "http://localhost:8787",
+      "/test-agent": "http://localhost:8787",
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

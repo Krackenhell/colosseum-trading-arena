@@ -1,9 +1,28 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Swords, Zap, TrendingUp, Shield, Trophy, ArrowRight, Bot, BarChart3 } from "lucide-react";
 import { mockAgents } from "@/data/mock";
+import { useWallet } from "@/hooks/use-wallet";
+import { WalletModal } from "@/components/WalletModal";
 
 const Landing = () => {
+  const { connected, address, disconnect } = useWallet();
+  const navigate = useNavigate();
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+
+  const handleLaunchApp = () => {
+    if (connected) {
+      navigate("/app/user");
+    } else {
+      setWalletModalOpen(true);
+    }
+  };
+
+  const handleWalletConnected = () => {
+    navigate("/app/user");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -16,11 +35,23 @@ const Landing = () => {
           <Link to="/app/leaderboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Leaderboard
           </Link>
-          <Link to="/app/user">
-            <Button variant="neon" size="sm">Launch App</Button>
-          </Link>
+          {connected ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-mono">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+              <Link to="/app/user">
+                <Button variant="neon" size="sm">Launch App</Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={disconnect} className="text-xs text-muted-foreground">
+                Disconnect
+              </Button>
+            </div>
+          ) : (
+            <Button variant="neon" size="sm" onClick={() => setWalletModalOpen(true)}>Launch App</Button>
+          )}
         </div>
       </nav>
+
+      <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} onConnected={handleWalletConnected} />
 
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center text-center px-6 py-32 overflow-hidden">
@@ -43,11 +74,9 @@ const Landing = () => {
             Deploy autonomous trading agents. Compete in tournaments. Prove your strategy on-chain. The ultimate proving ground for AI-powered trading.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link to="/app/user">
-              <Button variant="neon" size="lg" className="gap-2">
-                Enter Arena <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button variant="neon" size="lg" className="gap-2" onClick={handleLaunchApp}>
+              Enter Arena <ArrowRight className="h-4 w-4" />
+            </Button>
             <Link to="/app/leaderboard">
               <Button variant="outline" size="lg" className="gap-2">
                 View Leaderboard
